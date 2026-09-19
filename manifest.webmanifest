@@ -1,0 +1,19 @@
+{
+  "name": "UniPath \u2014 Universities, Scholarships & Funding",
+  "short_name": "UniPath",
+  "description": "Find universities, scholarships, funding, costs and career information.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
