@@ -1269,5 +1269,94 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
+
+<script>
+/* UniPath → Supabase Analytics */
+(function () {
+  const SUPABASE_URL = 'https://zvijfzuwgstbhfrwriqq.supabase.co';
+
+  // Supabase → Settings → API Keys → Publishable key
+  // O'zingiz copy qilgan sb_publishable_... keyni shu joyga qo'ying.
+  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_HOc6zAu6w50_djruYf1CDA_Se4Y4EO2';
+
+  const SESSION_KEY = 'unipath_analytics_session';
+
+  function getSessionId() {
+    let id = localStorage.getItem(SESSION_KEY);
+    if (!id) {
+      id =
+        crypto.randomUUID ?
+        crypto.randomUUID() :
+        'session-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+
+      localStorage.setItem(SESSION_KEY, id);
+    }
+    return id;
+  }
+
+  function getDeviceType() {
+    return window.innerWidth <= 768 ? 'mobile' : 'desktop';
+  }
+
+  async function sendAnalytics(eventName, params) {
+    if (
+      !SUPABASE_PUBLISHABLE_KEY ||
+      SUPABASE_PUBLISHABLE_KEY === 'PASTE_YOUR_SB_PUBLISHABLE_KEY_HERE'
+    ) return;
+
+    const payload = {
+      event_name: eventName,
+      session_id: getSessionId(),
+      page_path: location.pathname,
+      university_id: params && params.university_id
+        ? String(params.university_id)
+        : null,
+      device_type: getDeviceType(),
+      language: document.documentElement.lang || 'en',
+      referrer: document.referrer || null,
+      metadata: params || {}
+    };
+
+    try {
+      await fetch(
+        SUPABASE_URL + '/rest/v1/analytics_events',
+        {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_PUBLISHABLE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_PUBLISHABLE_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify(payload),
+          keepalive: true
+        }
+      );
+    } catch (error) {
+      console.warn('UniPath analytics error:', error);
+    }
+  }
+
+  /* Connect to existing UniPath analytics */
+  const oldTrack = window.trackUniPath;
+
+  window.trackUniPath = function (name, params) {
+    try {
+      if (typeof oldTrack === 'function') {
+        oldTrack(name, params || {});
+      }
+    } catch (e) {}
+
+    sendAnalytics(name, params || {});
+  };
+
+  /* Record page visit */
+  window.addEventListener('load', function () {
+    sendAnalytics('page_view', {
+      path: location.pathname
+    });
+  });
+})();
+</script>
 </body>
 </html>
