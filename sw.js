@@ -1,4 +1,4 @@
-const CACHE = "unipath-pwa-v1";
+const CACHE = "unipath-pwa-v2";
 const CORE = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg"];
 
 self.addEventListener("install", event => {
